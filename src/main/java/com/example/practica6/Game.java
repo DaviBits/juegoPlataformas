@@ -89,23 +89,44 @@ public class Game {
             if (e.getCode() == KeyCode.S) {
                 guardar();
             }
+            if (e.getCode() == KeyCode.SPACE) {
+                jugador.saltar();   // <-- SOLO SE DISPARA UNA VEZ
+            }
+            if (e.getCode() == KeyCode.X) {
+                jugador.dash();
+            }
+
+            if (e.getCode() == KeyCode.RIGHT) jugador.setDireccion(1);
+            if (e.getCode() == KeyCode.LEFT) jugador.setDireccion(-1);
+
+
         });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, e -> keys.remove(e.getCode()));
     }
 
+    //EL SALTO DEBE ESTAR EN OTRO METODO POR EL DOBLE SALTO, NO MOVER
+
+    // SPACIO->SALTO
+    //FLECHA DERECHA -> DERECHA
+    //FLECHA IZQUIERDA -> IZQUIERDA
+    //X -> DASH
     public void start() { loop.start(); }
 
     private void actualizar(double delta) {
         // input
         if (keys.contains(KeyCode.LEFT)) jugador.moverIzquierda();
         if (keys.contains(KeyCode.RIGHT)) jugador.moverDerecha();
-        if (keys.contains(KeyCode.SPACE)) jugador.saltar();
+
+
 
         // update entities
         for (Entidad en : entidades) en.update();
 
         // gravedad & plataformas collision for player
         jugador.applyGravity();
+        jugador.updateDash(delta);
+
+        //jugador.acelerate();
         boolean onPlatform = false;
         for (Plataforma p : plataformas) {
             if (jugador.getBounds().intersects(p.getBounds())) {
