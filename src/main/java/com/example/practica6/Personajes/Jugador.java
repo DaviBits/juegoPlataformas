@@ -1,12 +1,12 @@
-package com.example.practica6;
+package com.example.practica6.Personajes;
 
+ import com.example.practica6.Animacion.Animacion;
+ import com.example.practica6.Otros.ArmaCuerpoCuerpo;
+ import com.example.practica6.Entorno.Plataforma;
  import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
-
-import java.util.Set;
+ import javafx.scene.paint.Color;
 
 public class Jugador extends Entidad {
 
@@ -349,5 +349,8 @@ public class Jugador extends Entidad {
 
     public void setDireccion(int i) {
         this.direccion=i;
+    }
+
+    public double getVelY() {return velY;
     }
 }

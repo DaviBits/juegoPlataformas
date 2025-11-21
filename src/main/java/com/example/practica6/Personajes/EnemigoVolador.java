@@ -1,4 +1,4 @@
-package com.example.practica6;
+package com.example.practica6.Personajes;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

@@ -1,5 +1,7 @@
 package com.example.practica6;
 
+import com.example.practica6.Entorno.Plataforma;
+import com.example.practica6.Personajes.*;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -27,6 +29,7 @@ public class Game {
     private ArchivoJuego archivoJuego;
 
     private AnimationTimer loop;
+    private double cameraX;
 
     public Game(int width, int height) {
         this.width = width;
@@ -47,7 +50,7 @@ public class Game {
         entidades.add(jugador);
 
         // Plataformas (suelo + dos plataformas elevadas)
-        plataformas.add(new Plataforma(0, 540, 800, 60)); // suelo
+        plataformas.add(new Plataforma(0, 540, 4000, 60)); // suelo
         plataformas.add(new Plataforma(200, 420, 120, 20));
         plataformas.add(new Plataforma(450, 350, 150, 20));
 
@@ -163,6 +166,8 @@ public class Game {
             }
         }
 
+        cameraX = jugador.getX() - width / 2;
+        if (cameraX < 0) cameraX = 0;
         //colision con el arma
 
 
@@ -174,7 +179,10 @@ public class Game {
         gc.setFill(Color.web("#1e1e1e"));
         gc.fillRect(0, 0, width, height);
 
+        gc.save();
+        gc.translate(-cameraX, 0);
         // draw platforms
+
         gc.setFill(Color.SADDLEBROWN);
         for (Plataforma p : plataformas) {
             p.draw(gc);

@@ -1,6 +1,5 @@
-package com.example.practica6;
+package com.example.practica6.Personajes;
 
-import javafx.scene.canvas.GraphicsContext;
 public abstract class Enemigo extends Entidad {
     protected double velX = 0;
 

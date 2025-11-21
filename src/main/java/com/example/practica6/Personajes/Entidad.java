@@ -1,4 +1,4 @@
-package com.example.practica6;
+package com.example.practica6.Personajes;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;

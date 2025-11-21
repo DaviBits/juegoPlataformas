@@ -1,4 +1,4 @@
-package com.example.practica6;
+package com.example.practica6.Animacion;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

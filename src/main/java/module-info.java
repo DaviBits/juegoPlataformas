@@ -13,4 +13,12 @@ module com.example.practica6 {
 
     opens com.example.practica6 to javafx.fxml;
     exports com.example.practica6;
+    exports com.example.practica6.Personajes;
+    opens com.example.practica6.Personajes to javafx.fxml;
+    exports com.example.practica6.Entorno;
+    opens com.example.practica6.Entorno to javafx.fxml;
+    exports com.example.practica6.Animacion;
+    opens com.example.practica6.Animacion to javafx.fxml;
+    exports com.example.practica6.Otros;
+    opens com.example.practica6.Otros to javafx.fxml;
 }
