@@ -5,25 +5,25 @@ import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Entidad {
     protected double x, y, width, height;
-    protected int corazones;
+    protected double vida;
     protected double tiempoInvulnerable=0;
 
 
     public Entidad(double x, double y, double width, double height) {
         this.x = x; this.y = y; this.width = width; this.height = height;
-        this.corazones=5;
+        this.vida =5;
     }
 
-    public Entidad(double x, double y, double width, double height, int corazones) {
+    public Entidad(double x, double y, double width, double height, int vida) {
         this.x = x; this.y = y; this.width = width; this.height = height;
-        this.corazones=corazones;
+        this.vida =vida;
     }
     public boolean puedeRecibirDaño(){
-        return tiempoInvulnerable>=0;
+        return tiempoInvulnerable<=0;
     }
 
     public void activarInvulnerabilidad(){
-        tiempoInvulnerable=0.3;
+        tiempoInvulnerable=1;
     }
 
     public void actualizarInvulnerabilidad(double delta) {
@@ -32,8 +32,8 @@ public abstract class Entidad {
     }
 
 
-    public int getCorazones(){return corazones;}
-    public void setCorazones(int corazones){this.corazones=corazones;}
+    public double getVida(){return vida;}
+    public void setVida(Double vida){this.vida = vida;}
 
     public abstract void update();
     public abstract void update(double delta);

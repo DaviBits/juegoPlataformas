@@ -1,1 +1,2 @@
-puntaje=0\njugador=player\n
+puntaje=20
+jugador=player

@@ -51,8 +51,8 @@ public class Jugador extends Entidad {
     private Animacion atacarAnim;
     private Animacion dashAnim;
 
-    public Jugador(double x, double y, double width, double height) {
-        super(x,y,width*SCALE,height*SCALE);
+    public Jugador(double x, double y, double width, double height, int vida) {
+        super(x,y,width*SCALE,height*SCALE, vida);
 
         arma= new ArmaCuerpoCuerpo(x+width, y+width, 20, 15);
         this. estado=estados[0];
@@ -156,10 +156,9 @@ public class Jugador extends Entidad {
 
 
     public void applyGravity() {
-        if (!haciendoDash) {
+        if(!haciendoDash ) {
             velY += 0.5;
         }
-
         y += velY;
 
         if (y > 1000) { vivo = false; }

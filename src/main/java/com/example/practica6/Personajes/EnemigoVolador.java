@@ -7,8 +7,13 @@ import javafx.scene.image.Image;
 public class EnemigoVolador extends Enemigo {
     private double baseY;
     private Image sprite;
-    public EnemigoVolador(double x, double y, double width, double height, double velX) {
-        super(x,y,width,height,velX);
+    public EnemigoVolador(double x, double y, double width, double height, double velX, int vida) {
+        super(x,y,width,height,velX, vida);
+        this.baseY = y;
+        try { sprite = new Image("file:assets/images/enemy_fly.png"); } catch (Exception e) { sprite = null; }
+    }
+    public EnemigoVolador(double x, double y, double width, double height, double velX, int vida,double daño) {
+        super(x,y,width,height,velX, vida);
         this.baseY = y;
         try { sprite = new Image("file:assets/images/enemy_fly.png"); } catch (Exception e) { sprite = null; }
     }

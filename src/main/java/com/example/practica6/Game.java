@@ -46,7 +46,7 @@ public class Game {
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
 
-        jugador = new Jugador(50, 500, 40, 60);
+        jugador = new Jugador(50, 500, 40, 60, 100);
         entidades.add(jugador);
 
         // Plataformas (suelo + dos plataformas elevadas)
@@ -55,8 +55,8 @@ public class Game {
         plataformas.add(new Plataforma(450, 350, 150, 20));
 
         // Enemigos
-        EnemigoTerrestre et = new EnemigoTerrestre(300, 500, 40, 40, 1.5);
-        EnemigoVolador ev = new EnemigoVolador(600, 200, 40, 40, 1.2);
+        EnemigoTerrestre et = new EnemigoTerrestre(300, 460, 40, 80, 1.5, 20, 10);
+        EnemigoVolador ev = new EnemigoVolador(600, 200, 40, 40, 1.2, 15, 20);
 
         entidades.add(et);
         entidades.add(ev);
@@ -147,19 +147,30 @@ public class Game {
         }
         if (!onPlatform) jugador.setEnSuelo(false);
 
+        for (Entidad en : entidades) en.actualizarInvulnerabilidad(delta);
+
+
         // collisions with enemies
         for (Entidad en : entidades) {
             if (en instanceof Enemigo) {
                 ((Enemigo) en).actualizarInvulnerabilidad(delta);
-                if (jugador.getBounds().intersects(en.getBounds())) {
-                    jugador.setVivo(false);
+                if (jugador.getBounds().intersects(en.getBounds()) && jugador.puedeRecibirDaño()) {
+                    jugador.setVida((Double) (jugador.getVida() - ((Enemigo) en).getDaño()));
+                    jugador.activarInvulnerabilidad();
+                    System.out.println(jugador.getVida());
+                    if (jugador.getVida() <= 0) {
+                        jugador.setVivo(false);
+                    }
                 }
                 if(jugador.verificarColisionArma(en.getBounds())){
                    Enemigo enemigo = (Enemigo)en;
                    if(enemigo.puedeRecibirDaño()){
-                       enemigo.setCorazones(enemigo.getCorazones()-1);
+                       enemigo.setVida((double) (enemigo.getVida()-1));
                        enemigo.activarInvulnerabilidad();
-                       System.out.println("Corazones restantes: "+ enemigo.getCorazones());
+                       if(enemigo.getVida() <= 0) {
+                           jugador.setPuntaje(enemigo.getPuntaje());
+                       }
+                       System.out.println("Corazones restantes: "+ enemigo.getVida());
                    }
 
                 }

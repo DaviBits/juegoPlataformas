@@ -6,8 +6,13 @@ import javafx.scene.image.Image;
 
 public class EnemigoTerrestre extends Enemigo {
     private Image sprite;
-    public EnemigoTerrestre(double x, double y, double width, double height, double velX) {
-        super(x,y,width,height,velX);
+    public EnemigoTerrestre(double x, double y, double width, double height, double velX, int vida) {
+        super(x,y,width,height,velX, vida);
+        try { sprite = new Image("file:assets/images/enemy_ground.png"); } catch (Exception e) { sprite = null; }
+    }
+
+    public EnemigoTerrestre(double x, double y, double width, double height, double velX, int vida, double daño) {
+        super(x,y,width,height,velX, vida, daño);
         try { sprite = new Image("file:assets/images/enemy_ground.png"); } catch (Exception e) { sprite = null; }
     }
 
