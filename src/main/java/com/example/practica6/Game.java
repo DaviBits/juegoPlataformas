@@ -3,7 +3,6 @@ package com.example.practica6;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
@@ -44,7 +43,7 @@ public class Game {
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
 
-        jugador = new Jugador(50, 450, 40, 60);
+        jugador = new Jugador(50, 500, 40, 60);
         entidades.add(jugador);
 
         // Plataformas (suelo + dos plataformas elevadas)
@@ -96,6 +95,12 @@ public class Game {
                 jugador.dash();
             }
 
+            if(e.getCode() == KeyCode.C){
+                jugador.downAtack();
+            }
+
+
+
             if (e.getCode() == KeyCode.RIGHT) jugador.setDireccion(1);
             if (e.getCode() == KeyCode.LEFT) jugador.setDireccion(-1);
 
@@ -110,23 +115,26 @@ public class Game {
     //FLECHA DERECHA -> DERECHA
     //FLECHA IZQUIERDA -> IZQUIERDA
     //X -> DASH
+    //C -> DOWN ATACK
     public void start() { loop.start(); }
 
     private void actualizar(double delta) {
         // input
         if (keys.contains(KeyCode.LEFT)) jugador.moverIzquierda();
         if (keys.contains(KeyCode.RIGHT)) jugador.moverDerecha();
+        if(keys.contains(KeyCode.Z)) jugador.actualizarArma();
+
 
 
 
         // update entities
-        for (Entidad en : entidades) en.update();
+        for (Entidad en : entidades) en.update(delta);
 
         // gravedad & plataformas collision for player
         jugador.applyGravity();
         jugador.updateDash(delta);
 
-        //jugador.acelerate();
+        //colision con las plataformas
         boolean onPlatform = false;
         for (Plataforma p : plataformas) {
             if (jugador.getBounds().intersects(p.getBounds())) {
@@ -139,11 +147,24 @@ public class Game {
         // collisions with enemies
         for (Entidad en : entidades) {
             if (en instanceof Enemigo) {
+                ((Enemigo) en).actualizarInvulnerabilidad(delta);
                 if (jugador.getBounds().intersects(en.getBounds())) {
                     jugador.setVivo(false);
                 }
+                if(jugador.verificarColisionArma(en.getBounds())){
+                   Enemigo enemigo = (Enemigo)en;
+                   if(enemigo.puedeRecibirDaño()){
+                       enemigo.setCorazones(enemigo.getCorazones()-1);
+                       enemigo.activarInvulnerabilidad();
+                       System.out.println("Corazones restantes: "+ enemigo.getCorazones());
+                   }
+
+                }
             }
         }
+
+        //colision con el arma
+
 
         // remove dead or collected items if any (not implemented but placeholder)
     }
@@ -160,7 +181,12 @@ public class Game {
         }
 
         // draw entities
-        for (Entidad e : entidades) e.draw(gc);
+        for (Entidad e : entidades){
+            e.draw(gc);
+            if(e instanceof Jugador){
+                 ((Jugador) e).dibujarArma(gc);
+            }
+        }
 
         // HUD
         gc.setFill(Color.WHITE);

@@ -1,6 +1,6 @@
 package com.example.practica6;
 
-import javafx.geometry.Rectangle2D;
+ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -9,6 +9,17 @@ import javafx.scene.paint.Color;
 import java.util.Set;
 
 public class Jugador extends Entidad {
+
+    private static final int CAMINANDO=4;
+    private static final int DASHEANDO=3;
+    private static final int ATACANDO=2;
+    private static final int SALTANDO=1;
+    private static final int IDLE=0;
+    private static final  double SCALE=1.5;
+
+
+
+
     private double velY = 0;
     private double velX = 0;
     private boolean enSuelo = false;
@@ -28,12 +39,86 @@ public class Jugador extends Entidad {
     private boolean puedeDashear=true;
     private int direccion = 1;
 
+    private ArmaCuerpoCuerpo arma;
+    private boolean atacando =false;
+    //estados para las animaciones
+    private String [] estados={"idle", "saltando", "atacando", "dasheando", "caminando"};
+    private String estado;
+
+    private Animacion idleAnim;
+    private Animacion caminandoAnim;
+    private Animacion saltarAnim;
+    private Animacion atacarAnim;
+    private Animacion dashAnim;
 
     public Jugador(double x, double y, double width, double height) {
-        super(x,y,width,height);
+        super(x,y,width*SCALE,height*SCALE);
+
+        arma= new ArmaCuerpoCuerpo(x+width, y+width, 20, 15);
+        this. estado=estados[0];
+        //idle
+        try{
+           Image idleSheet = new Image(getClass().getResourceAsStream("/Sprites/Samurai/idle.png"));
+
+            idleAnim=new Animacion(idleSheet, 30, 22, 3, 0.15);
+        }catch (Exception e){sprite=null;}
+        //moviendose
+        try{
+            Image caminandoSheet =new Image(getClass().getResourceAsStream("/Sprites/Samurai/run-sword.png"));
+
+            caminandoAnim=new Animacion(caminandoSheet, 32, 32, 10, 0.15);
+        }catch (Exception e){sprite=null;}
+
+        //salto
+        try{
+            Image saltoSheet =new Image(getClass().getResourceAsStream("/Sprites/Samurai/jump.png"));
+
+            saltarAnim=new Animacion(saltoSheet, 22, 22, 4, 0.15);
+        }catch (Exception e){sprite=null;}
+
+        //sash
+        try{
+            Image dashSheet =new Image(getClass().getResourceAsStream("/Sprites/Samurai/light-attack.png"));
+
+            dashAnim=new Animacion(dashSheet, 44, 22, 7, 0.10);
+        }catch (Exception e){sprite=null;}
+
+
+
         try {
             sprite = new Image("file:assets/images/player.png");
         } catch (Exception e) { sprite = null; }
+    }
+
+    public void dibujarArma(GraphicsContext gc){
+       if(atacando){
+           arma.draw(gc);
+            atacando=false;
+       }
+    }
+    public boolean verificarColisionArma(Rectangle2D enemigoBounds) {
+        return arma.getBounds().intersects(enemigoBounds);
+    }
+
+
+    public boolean verificarColisionArma(double enX,double enY ){
+        if(enX>=arma.getX()&&enX<= arma.getX()+ arma.getWidth()){
+            System.out.println("Colision arma-enemigo");
+            return true;
+        }
+        return false;
+    }
+
+    public void actualizarArma(){
+        atacando=true;
+        if(izquierda){
+            arma.setX(x-width/2);
+            arma.setY(y+width/2);
+        }
+        if(derecha){
+            arma.setX(x+width);
+            arma.setY(y+width/2);
+        }
     }
 
     public void moverIzquierda() {
@@ -43,7 +128,9 @@ public class Jugador extends Entidad {
         if (x < 0){
             x = 0;
         }
+
     }
+
     public void moverDerecha() {
         izquierda=false;
         derecha=true;
@@ -51,6 +138,7 @@ public class Jugador extends Entidad {
         if (x + width > 800){
             x = 800 - width;
         }
+
     }
 
     public void saltar() {
@@ -60,6 +148,7 @@ public class Jugador extends Entidad {
             enSuelo=false;
             contadorSaltos--;
         }
+        estado=estados[SALTANDO];
 
     }
 
@@ -75,11 +164,6 @@ public class Jugador extends Entidad {
     }
 
 
-    public void acelerate(){
-        velX-=50;
-        x+=velX;
-
-    }
 
     public void dash() {
         if (!puedeDashear || haciendoDash) return;
@@ -90,7 +174,7 @@ public class Jugador extends Entidad {
         velY = 0;
 
         velX = direccion * dashVelocidad;
-
+        estado= estados[DASHEANDO];
         puedeDashear = false;
     }
 
@@ -108,6 +192,12 @@ public class Jugador extends Entidad {
         }
     }
 
+    public void downAtack(){
+        if(!enSuelo){
+            velY+=15;
+        }
+    }
+
 
 
     public void landOn(Plataforma p) {
@@ -118,22 +208,132 @@ public class Jugador extends Entidad {
         enSuelo = true;
         dobleSalto=true;
         puedeDashear=true;
+
+        if (izquierda || derecha) {
+            estado = estados[CAMINANDO];
+        } else {
+            estado = estados[IDLE];
+        }
+
     }
 
     @Override
     public void update() {
         // could add animations
+        if (!haciendoDash && enSuelo) {
+            if (izquierda || derecha) {
+                estado = estados[CAMINANDO];
+            } else {
+                estado = estados[IDLE];
+            }
+        }
+         double delta=0.032;
+
+        switch (estado) {
+            case "idle":
+                if(idleAnim!=null){
+                    idleAnim.update(delta);
+                }
+                break;
+            case "saltando":
+                break;
+            case "atacando":
+                break;
+            case "dasheando":
+                break;
+            case "caminando":
+                if(caminandoAnim!=null){
+                    caminandoAnim.update(delta);
+                }
+                break;
+        }
     }
+    @Override
+    public void update(double delta) {
+
+        // NO sobreescribir estados importantes
+        if (!estado.equals("saltando") &&
+                !estado.equals("atacando") &&
+                !estado.equals("dasheando")) {
+
+            if (enSuelo) {
+                if (izquierda || derecha) {
+                    estado = estados[CAMINANDO];
+                } else {
+                    estado = estados[IDLE];
+                }
+            }
+        }
+
+        // actualizar animación según estado
+        switch (estado) {
+            case "idle":
+                if(idleAnim != null) idleAnim.update(delta);
+                break;
+            case "caminando":
+                if(caminandoAnim != null) caminandoAnim.update(delta);
+                break;
+            case "saltando":
+                if(saltarAnim != null) saltarAnim.update(delta);
+                break;
+            case "atacando":
+                if(atacarAnim != null) atacarAnim.update(delta);
+                break;
+            case "dasheando":
+                if(dashAnim != null) dashAnim.update(delta);
+                break;
+        }
+    }
+
+
 
     @Override
     public void draw(GraphicsContext gc) {
-        if (sprite != null) {
-            gc.drawImage(sprite, x, y, width, height);
-        } else {
-            gc.setFill(Color.BLUE);
-            gc.fillRect(x,y,width,height);
+
+        boolean flipX = izquierda; // si mira a la izquierda, voltea sprite
+
+        switch (estado) {
+            case "idle":
+                if (idleAnim != null) {
+                    idleAnim.draw(gc, x, y, width, height, flipX);
+                    return;
+                }
+                break;
+
+            case "caminando":
+                if (caminandoAnim != null) {
+                    caminandoAnim.draw(gc, x, y, width, height, flipX);
+                    return;
+                }
+                break;
+
+            case "saltando":
+                if (saltarAnim != null) {
+                    saltarAnim.draw(gc, x, y, width, height, flipX);
+                    return;
+                }
+                break;
+
+            case "atacando":
+                if (atacarAnim != null) {
+                    atacarAnim.draw(gc, x, y, width, height, flipX);
+                    return;
+                }
+                break;
+
+            case "dasheando":
+                if (dashAnim != null) {
+                    dashAnim.draw(gc, x, y, width, height, flipX);
+                    return;
+                }
+                break;
         }
+
+        // si no hay animación, dibuja un rectángulo (fallback)
+        gc.setFill(Color.BLUE);
+        gc.fillRect(x, y, width, height);
     }
+
 
     public int getPuntaje() { return puntaje; }
     public void setPuntaje(int p) { this.puntaje = p; }

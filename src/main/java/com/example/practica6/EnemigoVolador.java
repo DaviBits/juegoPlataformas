@@ -20,6 +20,14 @@ public class EnemigoVolador extends Enemigo {
         if (x < -50) x = 850;
         if (x > 850) x = -50;
     }
+    @Override
+    public void update(double delta){
+        x += velX;
+        y = baseY + Math.sin(x * 0.05) * 20;
+        if (x < -50) x = 850;
+        if (x > 850) x = -50;
+
+    }
 
     @Override
     public void draw(GraphicsContext gc) {

@@ -8,14 +8,14 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-        Game game = new Game(800, 600);
+        Game game = new Game(1600, 900);
         StackPane root = new StackPane(game.getCanvas());
         Scene scene = new Scene(root);
         game.setupInput(scene);
         primaryStage.setTitle("Juego Plataforma 2D - JavaFX");
         primaryStage.setScene(scene);
-        primaryStage.setWidth(800);
-        primaryStage.setHeight(600);
+        primaryStage.setWidth(1600);
+        primaryStage.setHeight(900);
         primaryStage.show();
         game.start();
     }

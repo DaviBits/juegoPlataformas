@@ -16,6 +16,11 @@ public class EnemigoTerrestre extends Enemigo {
         x += velX;
         if (x < 0 || x + width > 800) velX *= -1;
     }
+    @Override
+    public void update(double delta){
+        x += velX;
+        if (x < 0 || x + width > 800) velX *= -1;
+    }
 
     @Override
     public void draw(GraphicsContext gc) {

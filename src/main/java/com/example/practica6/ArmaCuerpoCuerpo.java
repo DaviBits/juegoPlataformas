@@ -4,17 +4,29 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Plataforma {
+public class ArmaCuerpoCuerpo {
     private double x, y, width, height;
-    public Plataforma(double x, double y, double width, double height) {
+
+    public ArmaCuerpoCuerpo(double x, double y, double width, double height) {
         this.x = x; this.y = y; this.width = width; this.height = height;
     }
     public Rectangle2D getBounds() { return new Rectangle2D(x,y,width,height); }
+
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(x,y,width,height);
     }
     public double getY() { return y; }
+    public double getX(){return x;}
+    public void desplazarHorizontal(int d){this.x+=d;}
 
+    public void setX(double x){
+        this.x=x;
+    }
 
+    public void setY(double y){
+        this.y=y;
+    }
+
+    public double getWidth(){return width;}
 }
