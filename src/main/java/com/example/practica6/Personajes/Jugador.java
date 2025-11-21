@@ -15,7 +15,7 @@ public class Jugador extends Entidad {
     private static final int ATACANDO=2;
     private static final int SALTANDO=1;
     private static final int IDLE=0;
-    private static final  double SCALE=1.5;
+    private static final  double SCALE=2;
 
 
 
@@ -134,8 +134,10 @@ public class Jugador extends Entidad {
     public void moverDerecha() {
         izquierda=false;
         derecha=true;
+
         x += 5;
-        if (x + width > 800){
+
+        if (x + width > 1600){
             x = 800 - width;
         }
 

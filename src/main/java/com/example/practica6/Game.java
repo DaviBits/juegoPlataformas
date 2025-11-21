@@ -50,7 +50,7 @@ public class Game {
         entidades.add(jugador);
 
         // Plataformas (suelo + dos plataformas elevadas)
-        plataformas.add(new Plataforma(0, 540, 4000, 60)); // suelo
+        plataformas.add(new Plataforma(0, 540, 2000, 60)); // suelo
         plataformas.add(new Plataforma(200, 420, 120, 20));
         plataformas.add(new Plataforma(450, 350, 150, 20));
 
@@ -165,8 +165,8 @@ public class Game {
                 }
             }
         }
-
-        cameraX = jugador.getX() - width / 2;
+        //++++++++CALCULO DE LA POSICION DE LA CAMARA+++++
+        cameraX = jugador.getX() - width /2;
         if (cameraX < 0) cameraX = 0;
         //colision con el arma
 
@@ -178,7 +178,7 @@ public class Game {
         // clear
         gc.setFill(Color.web("#1e1e1e"));
         gc.fillRect(0, 0, width, height);
-
+//++++++++CDIBUJA  LA CAMARA+++++
         gc.save();
         gc.translate(-cameraX, 0);
         // draw platforms
