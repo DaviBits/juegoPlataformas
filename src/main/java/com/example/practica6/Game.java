@@ -30,6 +30,7 @@ public class Game {
 
     private AnimationTimer loop;
     private double cameraX;
+    private double cameraY;
 
     public Game(int width, int height) {
         this.width = width;
@@ -61,6 +62,10 @@ public class Game {
         entidades.add(et);
         entidades.add(ev);
 
+        //Inicia con el jugador al centro
+        cameraX = jugador.getX() - width / 2.0;
+        cameraY = jugador.getY() - height / 2.0;
+
         // Setup loop
         loop = new AnimationTimer() {
             private long last = 0;
@@ -68,8 +73,8 @@ public class Game {
             public void handle(long now) {
                 if (last == 0) last = now;
                 double delta = (now - last) / 1e9;
-                actualizar(delta);
                 dibujar();
+                actualizar(delta);
                 last = now;
             }
         };
@@ -177,8 +182,12 @@ public class Game {
             }
         }
         //++++++++CALCULO DE LA POSICION DE LA CAMARA+++++
-        cameraX = jugador.getX() - width /2;
-        if (cameraX < 0) cameraX = 0;
+        cameraX = jugador.getX() - width / 2.0;
+        cameraY = jugador.getY() - height / 2.0;
+
+        // Limitar cámara a los bordes del mundo
+        if (cameraX < 0 ) cameraX = 0;
+        if (cameraY < 0) cameraY = 0;
         //colision con el arma
 
 
@@ -189,9 +198,10 @@ public class Game {
         // clear
         gc.setFill(Color.web("#1e1e1e"));
         gc.fillRect(0, 0, width, height);
-//++++++++CDIBUJA  LA CAMARA+++++
+//++++++++DIBUJA  LA CAMARA+++++
         gc.save();
-        gc.translate(-cameraX, 0);
+        gc.translate(-cameraX, -cameraY);
+
         // draw platforms
 
         gc.setFill(Color.SADDLEBROWN);
@@ -206,6 +216,8 @@ public class Game {
                  ((Jugador) e).dibujarArma(gc);
             }
         }
+
+        gc.restore();
 
         // HUD
         gc.setFill(Color.WHITE);
