@@ -6,6 +6,7 @@ import com.example.practica6.Personajes.*;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
@@ -33,6 +34,13 @@ public class Game {
     private double cameraX;
     private double cameraY;
 
+
+    //fondo
+    private Image bg1;
+    private Image bg2;
+    private Image bg3;
+    private Image bg4;
+
     public Game(int width, int height) {
         this.width = width;
         this.height = height;
@@ -44,6 +52,7 @@ public class Game {
     public Canvas getCanvas() { return canvas; }
 
     private void init() {
+
         archivoJuego = new ArchivoJuego("datos/progreso.txt");
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
@@ -236,7 +245,7 @@ public class Game {
         }
         gc.restore();
 
-        gc.restore();
+
 
         // HUD
         gc.setFill(Color.WHITE);

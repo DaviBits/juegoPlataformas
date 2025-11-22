@@ -8,6 +8,7 @@ import com.example.practica6.Personajes.*;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
@@ -33,6 +34,15 @@ public class Nv1 {
 
     private AnimationTimer loop;
     private double cameraX;
+    private double cameraY;
+
+    //imagenes del fondo
+    double scale = 2.5;
+
+    private Image sun;
+    private Image sky;
+    private Image ruins;
+    private Image mountains;
 
     public Nv1(int width, int height) {
         this.width = width;
@@ -45,14 +55,20 @@ public class Nv1 {
     public Canvas getCanvas() { return canvas; }
 
     private void init() {
+
+
         archivoJuego = new ArchivoJuego("datos/progreso.txt");
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
 
-        jugador = new Jugador(50, 500, 40, 60);
+        jugador = new Jugador(50, 500, 40, 60, 100);
         entidades.add(jugador);
 
+        cameraX = jugador.getX() - width / 2.0;
+        cameraY = jugador.getY() - height / 2.0;
+
         // Plataformas (suelo + dos plataformas elevadas)
+        cargarFondos();
         generarObjetos();
 
 
@@ -68,8 +84,8 @@ public class Nv1 {
             public void handle(long now) {
                 if (last == 0) last = now;
                 double delta = (now - last) / 1e9;
-                actualizar(delta);
                 dibujar();
+                actualizar(delta);
                 last = now;
             }
         };
@@ -83,6 +99,14 @@ public class Nv1 {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+
+    public void cargarFondos(){
+        sky = new Image(getClass().getResourceAsStream("/Fondo/BG-sky.png"));
+        sun = new Image(getClass().getResourceAsStream("/Fondo/BG-sun.png"));
+        mountains = new Image(getClass().getResourceAsStream("/Fondo/BG-mountains.png"));
+        ruins = new Image(getClass().getResourceAsStream("/Fondo/BG-ruins.png"));
     }
 
     public void setupInput(Scene scene) {
@@ -182,26 +206,43 @@ public class Nv1 {
         jugador.aplicarGravedadSegunEstado(tocandoPared);
 
         // collisions with enemies
+        for (Entidad en : entidades) en.actualizarInvulnerabilidad(delta);
+
+
+        // collisions with enemies
         for (Entidad en : entidades) {
             if (en instanceof Enemigo) {
                 ((Enemigo) en).actualizarInvulnerabilidad(delta);
-                if (jugador.getBounds().intersects(en.getBounds())) {
-                    jugador.setVivo(false);
+                if (jugador.getBounds().intersects(en.getBounds()) && jugador.puedeRecibirDaño()) {
+                    jugador.setVida((Double) (jugador.getVida() - ((Enemigo) en).getDaño()));
+                    jugador.activarInvulnerabilidad();
+                    System.out.println(jugador.getVida());
+                    if (jugador.getVida() <= 0) {
+                        jugador.setVivo(false);
+                    }
                 }
                 if(jugador.verificarColisionArma(en.getBounds())){
                     Enemigo enemigo = (Enemigo)en;
                     if(enemigo.puedeRecibirDaño()){
-                        enemigo.setCorazones(enemigo.getCorazones()-1);
+                        enemigo.setVida((double) (enemigo.getVida()-1));
                         enemigo.activarInvulnerabilidad();
-                        System.out.println("Corazones restantes: "+ enemigo.getCorazones());
+                        if(enemigo.getVida() <= 0) {
+                            jugador.setPuntaje(enemigo.getPuntaje());
+                        }
+                        System.out.println("Corazones restantes: "+ enemigo.getVida());
                     }
 
                 }
             }
         }
         //++++++++CALCULO DE LA POSICION DE LA CAMARA+++++
-        cameraX = jugador.getX() - width /2;
-        if (cameraX < 0) cameraX = 0;
+        cameraX = jugador.getX() - width / 2.0;
+        cameraY = jugador.getY() - height / 2.0;
+
+        // Limitar cámara a los bordes del mundo
+        if (cameraX < 0 ) cameraX = 0;
+        if (cameraY < 0) cameraY = 0;
+        //colision con el arma
         //colision con el arma
 
 
@@ -227,19 +268,70 @@ public class Nv1 {
 
         plataformas.add(new Suelo(4050, 800, 800, 100));
 
-        entidades.add(new EnemigoTerrestre(4250, 750, 50, 50, 1));
+        entidades.add( new EnemigoTerrestre(4150, 720, 40, 80, 1.5, 20, 10));
 
 
 
     }
+    private void dibujarFondos(GraphicsContext gc) {
+
+        double camX = cameraX;
+        double camY = cameraY;
+
+        // Escala del fondo (hazlo más grande si quieres)
+        double scale = 2.5;
+
+        Image[] capas = { sky, mountains, ruins };
+        double[] vel =  { 0.15,  0.35,     0.6  };
+
+        for (int i = 0; i < capas.length; i++) {
+
+            Image img = capas[i];
+
+            double parallax = vel[i];
+
+            double x = -camX * parallax;
+            double y = 0;
+
+
+             double w = img.getWidth() * scale;
+            double h = img.getHeight() * scale;
+
+            // Repetir horizontalmente
+            for (double dx = x - w; dx < x + width + w; dx += w) {
+                gc.drawImage(img, dx, y, w, h);
+            }
+        }
+
+        // ☀ Sol (también escalado)
+        double sunScale = 3.0;
+        gc.drawImage(
+                sun,
+                -camX * 0.1 + 300,
+                50,
+                sun.getWidth() * sunScale,
+                sun.getHeight() * sunScale
+        );
+    }
+
+
+
 
     private void dibujar() {
         // clear
-        gc.setFill(Color.web("#1e1e1e"));
-        gc.fillRect(0, 0, width, height);
-//++++++++CDIBUJA  LA CAMARA+++++
+        gc.setFill(Color.web("#19121E"));
+        gc.fillRect(0, canvas.getHeight() - 350, canvas.getWidth(), 350);
+
+
+
+
+//++++++++DIBUJA  LA CAMARA+++++
+        dibujarFondos(gc);
         gc.save();
-        gc.translate(-cameraX, 0);
+        gc.translate(-cameraX, -cameraY);
+
+
+
         // draw platforms
 
         gc.setFill(Color.SADDLEBROWN);
@@ -256,6 +348,8 @@ public class Nv1 {
         }
         gc.restore();
 
+
+
         // HUD
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font(18));
@@ -270,6 +364,7 @@ public class Nv1 {
             gc.fillText("¡Has perdido!", width/2 - 100, height/2);
         }
     }
+
 
     private void guardar() {
         try {

@@ -54,7 +54,7 @@ public class Jugador extends Entidad {
     public Jugador(double x, double y, double width, double height, int vida) {
         super(x,y,width*SCALE,height*SCALE, vida);
 
-        arma= new ArmaCuerpoCuerpo(x+width, y+width, 20, 15);
+        arma= new ArmaCuerpoCuerpo(x+width, y+width, 40, 40);
         this. estado=estados[0];
         //idle
         try{
