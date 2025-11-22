@@ -1,5 +1,6 @@
 package com.example.practica6;
 
+import com.example.practica6.Niveles.Nv1;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -8,7 +9,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-        Game game = new Game(1600, 900);
+        Nv1 game = new Nv1(1600, 900);
         StackPane root = new StackPane(game.getCanvas());
         Scene scene = new Scene(root);
         game.setupInput(scene);
