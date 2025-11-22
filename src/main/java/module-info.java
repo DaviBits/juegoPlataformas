@@ -22,4 +22,6 @@ module com.example.practica6 {
     opens com.example.practica6.Animacion to javafx.fxml;
     exports com.example.practica6.Otros;
     opens com.example.practica6.Otros to javafx.fxml;
+    exports com.example.practica6.Niveles;
+    opens com.example.practica6.Niveles to javafx.fmxl;
 }

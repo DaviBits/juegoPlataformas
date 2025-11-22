@@ -48,4 +48,9 @@ public abstract class Entidad {
     public double getY() { return y; }
     public double getWidth() { return width; }
     public double getHeight() { return height; }
+
+    //setters
+    public void setX(double x){this.x=x;}
+
+    public void setY(double y){this.y=y;}
 }

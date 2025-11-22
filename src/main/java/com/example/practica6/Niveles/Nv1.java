@@ -1,7 +1,9 @@
-package com.example.practica6;
+package com.example.practica6.Niveles;
 
+import com.example.practica6.ArchivoJuego;
 import com.example.practica6.Entorno.Plataforma;
 import com.example.practica6.Entorno.Suelo;
+import com.example.practica6.Entorno.Techo;
 import com.example.practica6.Personajes.*;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
@@ -17,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Game {
+public class Nv1 {
     private final Canvas canvas;
     private final GraphicsContext gc;
     private final int width;
@@ -31,9 +33,8 @@ public class Game {
 
     private AnimationTimer loop;
     private double cameraX;
-    private double cameraY;
 
-    public Game(int width, int height) {
+    public Nv1(int width, int height) {
         this.width = width;
         this.height = height;
         this.canvas = new Canvas(width, height);
@@ -48,24 +49,17 @@ public class Game {
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
 
-        jugador = new Jugador(50, 500, 40, 60, 100);
+        jugador = new Jugador(50, 500, 40, 60);
         entidades.add(jugador);
 
         // Plataformas (suelo + dos plataformas elevadas)
-        plataformas.add(new Suelo(0, 800, 6000, 100));
-        plataformas.add(new Plataforma(200, 420, 120, 20));
-        plataformas.add(new Plataforma(450, 350, 150, 20));
+        generarObjetos();
+
 
         // Enemigos
-        EnemigoTerrestre et = new EnemigoTerrestre(300, 460, 40, 80, 1.5, 20, 10);
-        EnemigoVolador ev = new EnemigoVolador(600, 200, 40, 40, 1.2, 15, 20);
 
-        entidades.add(et);
-        entidades.add(ev);
 
-        //Inicia con el jugador al centro
-        cameraX = jugador.getX() - width / 2.0;
-        cameraY = jugador.getY() - height / 2.0;
+
 
         // Setup loop
         loop = new AnimationTimer() {
@@ -74,8 +68,8 @@ public class Game {
             public void handle(long now) {
                 if (last == 0) last = now;
                 double delta = (now - last) / 1e9;
-                dibujar();
                 actualizar(delta);
+                dibujar();
                 last = now;
             }
         };
@@ -135,13 +129,16 @@ public class Game {
 
 
 
+        boolean tocandoPared = false;
 
         // update entities
         for (Entidad en : entidades) en.update(delta);
 
         // gravedad & plataformas collision for player
-        jugador.applyGravity();
+
+
         jugador.updateDash(delta);
+
 
         //colision con las plataformas
         boolean onPlatform = false;
@@ -151,75 +148,98 @@ public class Game {
 
                 if (jugador.getBounds().intersects(p.getBounds())) {
 
-                    // Solo si viene cayendo
-                    if (jugador.getVelY() > 0) {
+                    boolean desdeArriba =
+                            jugador.getY() + jugador.getHeight() <= p.getY()+20 ;
 
-                        // Acomoda EXACTO arriba del suelo
-                        double sueloY = p.getY() - jugador.getHeight();
-                        jugador.setY(sueloY);
+                    // Solo si viene cayendo Y viene por arriba
+                    if (jugador.getVelY() > 0 && desdeArriba) {
 
-                        // Frenar gravedad
+                        // Acomoda exactamente sobre el suelo
+                        jugador.setY(p.getY() - jugador.getHeight());
                         jugador.setVelY(0);
 
                         jugador.setEnSuelo(true);
-                        onPlatform = true;
                         jugador.aterrizo();
+                        onPlatform = true;
+
+                    } else {
+                        jugador.detenerHorizontal();
+                        tocandoPared = true;
+                        jugador.darSaltos();
                     }
                 }
             }
+
+            if(p instanceof Techo){
+                if(jugador.getBounds().intersects(p.getBounds())){
+                    jugador.detenerVertical();
+
+                }
+            }
         }
+
         if (!onPlatform) jugador.setEnSuelo(false);
-
-        for (Entidad en : entidades) en.actualizarInvulnerabilidad(delta);
-
+        jugador.aplicarGravedadSegunEstado(tocandoPared);
 
         // collisions with enemies
         for (Entidad en : entidades) {
             if (en instanceof Enemigo) {
                 ((Enemigo) en).actualizarInvulnerabilidad(delta);
-                if (jugador.getBounds().intersects(en.getBounds()) && jugador.puedeRecibirDaño()) {
-                    jugador.setVida((Double) (jugador.getVida() - ((Enemigo) en).getDaño()));
-                    jugador.activarInvulnerabilidad();
-                    System.out.println(jugador.getVida());
-                    if (jugador.getVida() <= 0) {
-                        jugador.setVivo(false);
-                    }
+                if (jugador.getBounds().intersects(en.getBounds())) {
+                    jugador.setVivo(false);
                 }
                 if(jugador.verificarColisionArma(en.getBounds())){
-                   Enemigo enemigo = (Enemigo)en;
-                   if(enemigo.puedeRecibirDaño()){
-                       enemigo.setVida((double) (enemigo.getVida()-1));
-                       enemigo.activarInvulnerabilidad();
-                       if(enemigo.getVida() <= 0) {
-                           jugador.setPuntaje(enemigo.getPuntaje());
-                       }
-                       System.out.println("Corazones restantes: "+ enemigo.getVida());
-                   }
+                    Enemigo enemigo = (Enemigo)en;
+                    if(enemigo.puedeRecibirDaño()){
+                        enemigo.setCorazones(enemigo.getCorazones()-1);
+                        enemigo.activarInvulnerabilidad();
+                        System.out.println("Corazones restantes: "+ enemigo.getCorazones());
+                    }
 
                 }
             }
         }
         //++++++++CALCULO DE LA POSICION DE LA CAMARA+++++
-        cameraX = jugador.getX() - width / 2.0;
-        cameraY = jugador.getY() - height / 2.0;
-
-        // Limitar cámara a los bordes del mundo
-        if (cameraX < 0 ) cameraX = 0;
-        if (cameraY < 0) cameraY = 0;
+        cameraX = jugador.getX() - width /2;
+        if (cameraX < 0) cameraX = 0;
         //colision con el arma
 
 
         // remove dead or collected items if any (not implemented but placeholder)
     }
 
+    private void generarObjetos(){
+        plataformas.add(new Suelo(0, 800, 800, 100));
+
+        plataformas.add(new Suelo(900, 700, 200, 50));
+
+        plataformas.add(new Suelo(1250, 800, 400, 500));
+
+        plataformas.add(new Suelo(1850, 800, 400, 500));
+
+        plataformas.add(new Suelo(2250, 600, 835, 500));
+
+        plataformas.add(new Suelo(3250, 200, 800, 800));
+
+        plataformas.add(new Suelo(3050, 0, 50, 400));
+
+        plataformas.add(new Techo(3050, 390, 51, 30 ));
+
+        plataformas.add(new Suelo(4050, 800, 800, 100));
+
+        entidades.add(new EnemigoTerrestre(4250, 750, 50, 50, 1));
+
+
+
+    }
+
     private void dibujar() {
         // clear
         gc.setFill(Color.web("#1e1e1e"));
         gc.fillRect(0, 0, width, height);
-//++++++++DIBUJA  LA CAMARA+++++
+//++++++++CDIBUJA  LA CAMARA+++++
         gc.save();
-        gc.translate(-cameraX, -cameraY);
-
+        gc.translate(-cameraX, 0);
         // draw platforms
 
         gc.setFill(Color.SADDLEBROWN);
@@ -231,11 +251,9 @@ public class Game {
         for (Entidad e : entidades){
             e.draw(gc);
             if(e instanceof Jugador){
-                 ((Jugador) e).dibujarArma(gc);
+                ((Jugador) e).dibujarArma(gc);
             }
         }
-        gc.restore();
-
         gc.restore();
 
         // HUD

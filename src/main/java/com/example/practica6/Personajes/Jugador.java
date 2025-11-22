@@ -1,12 +1,12 @@
 package com.example.practica6.Personajes;
 
- import com.example.practica6.Animacion.Animacion;
- import com.example.practica6.Otros.ArmaCuerpoCuerpo;
- import com.example.practica6.Entorno.Plataforma;
- import javafx.geometry.Rectangle2D;
+import com.example.practica6.Animacion.Animacion;
+import com.example.practica6.Otros.ArmaCuerpoCuerpo;
+import com.example.practica6.Entorno.Plataforma;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
- import javafx.scene.paint.Color;
+import javafx.scene.paint.Color;
 
 public class Jugador extends Entidad {
 
@@ -33,9 +33,9 @@ public class Jugador extends Entidad {
 
     //cosas para hacer el dash
     private boolean haciendoDash=false;
-    private final double duracionDash=0.15;
+    private final double duracionDash=0.20;
     private double dashTiempo=0;
-    private final double  dashVelocidad=12;
+    private final double  dashVelocidad=15;
     private boolean puedeDashear=true;
     private int direccion = 1;
 
@@ -58,7 +58,7 @@ public class Jugador extends Entidad {
         this. estado=estados[0];
         //idle
         try{
-           Image idleSheet = new Image(getClass().getResourceAsStream("/Sprites/Samurai/idle.png"));
+            Image idleSheet = new Image(getClass().getResourceAsStream("/Sprites/Samurai/idle.png"));
 
             idleAnim=new Animacion(idleSheet, 30, 22, 3, 0.15);
         }catch (Exception e){sprite=null;}
@@ -91,10 +91,10 @@ public class Jugador extends Entidad {
     }
 
     public void dibujarArma(GraphicsContext gc){
-       if(atacando){
-           arma.draw(gc);
+        if(atacando){
+            arma.draw(gc);
             atacando=false;
-       }
+        }
     }
     public boolean verificarColisionArma(Rectangle2D enemigoBounds) {
         return arma.getBounds().intersects(enemigoBounds);
@@ -128,6 +128,7 @@ public class Jugador extends Entidad {
         if (x < 0){
             x = 0;
         }
+        estado=estados[CAMINANDO];
 
     }
 
@@ -137,16 +138,21 @@ public class Jugador extends Entidad {
 
         x += 5;
 
-        if (x + width > 1600){
+        if (x + width > 6000){
             x = 800 - width;
         }
+        estado=estados[CAMINANDO];
 
+    }
+
+    public void noMover(){
+        estado=estados[IDLE];
     }
 
     public void saltar() {
 
         if(contadorSaltos!=0){
-            velY-=10;
+            velY-=11.5;
             enSuelo=false;
             contadorSaltos--;
         }
@@ -162,6 +168,18 @@ public class Jugador extends Entidad {
         y += velY;
 
         if (y > 1000) { vivo = false; }
+        estado=estados[SALTANDO];
+    }
+
+    public void applyGravity(double vel) {
+        if (!haciendoDash) {
+            velY += vel;
+        }
+
+        y += velY;
+
+        if (y > 1000) { vivo = false; }
+        estado=estados[SALTANDO];
     }
 
 
@@ -174,10 +192,13 @@ public class Jugador extends Entidad {
 
         velY = 0;
 
-        velX = direccion * dashVelocidad;
-        estado= estados[DASHEANDO];
+        if (derecha) velX = dashVelocidad;
+        else if (izquierda) velX = -dashVelocidad;
+
+        estado = estados[DASHEANDO];
         puedeDashear = false;
     }
+
 
 
     public void updateDash(double delta) {
@@ -199,6 +220,11 @@ public class Jugador extends Entidad {
         }
     }
 
+    public void detenerHorizontal() {
+        if(izquierda)x+=5;
+        if(derecha)x-=5 ;
+
+    }
 
 
     public void landOn(Plataforma p) {
@@ -210,12 +236,26 @@ public class Jugador extends Entidad {
         dobleSalto=true;
         puedeDashear=true;
 
+
         if (izquierda || derecha) {
             estado = estados[CAMINANDO];
         } else {
             estado = estados[IDLE];
         }
 
+    }
+
+    public void aterrizo(){
+        contadorSaltos=2;
+        enSuelo = true;
+        dobleSalto=true;
+        puedeDashear=true;
+
+        if (izquierda || derecha) {
+            estado = estados[CAMINANDO];
+        } else {
+            estado = estados[IDLE];
+        }
     }
 
     @Override
@@ -228,43 +268,37 @@ public class Jugador extends Entidad {
                 estado = estados[IDLE];
             }
         }
-         double delta=0.032;
+        double delta=0.032;
 
         switch (estado) {
             case "idle":
-                if(idleAnim!=null){
-                    idleAnim.update(delta);
-                }
-                break;
-            case "saltando":
-                break;
-            case "atacando":
-                break;
-            case "dasheando":
+                if(idleAnim != null) idleAnim.update(delta);
                 break;
             case "caminando":
-                if(caminandoAnim!=null){
-                    caminandoAnim.update(delta);
-                }
+                if(caminandoAnim != null) caminandoAnim.update(delta);
+                break;
+            case "saltando":
+                if(saltarAnim != null) saltarAnim.update(delta);
+                break;
+            case "atacando":
+                if(atacarAnim != null) atacarAnim.update(delta);
+                break;
+            case "dasheando":
+                if(dashAnim != null) dashAnim.update(delta);
                 break;
         }
     }
     @Override
     public void update(double delta) {
-
-        // NO sobreescribir estados importantes
-        if (!estado.equals("saltando") &&
-                !estado.equals("atacando") &&
-                !estado.equals("dasheando")) {
-
-            if (enSuelo) {
-                if (izquierda || derecha) {
-                    estado = estados[CAMINANDO];
-                } else {
-                    estado = estados[IDLE];
-                }
+        if (!haciendoDash && enSuelo) {
+            if (izquierda || derecha) {
+                estado = estados[CAMINANDO];
+            } else {
+                estado = estados[IDLE];
             }
         }
+
+
 
         // actualizar animación según estado
         switch (estado) {
@@ -334,6 +368,24 @@ public class Jugador extends Entidad {
         gc.setFill(Color.BLUE);
         gc.fillRect(x, y, width, height);
     }
+    public void aplicarGravedadSegunEstado(boolean tocandoPared) {
+
+        // Gravedad sola
+        if (!haciendoDash) {
+            velY += 0.5;
+        }
+
+        // Deslizamiento en pared
+        if (!enSuelo && tocandoPared) {
+            velY = Math.min(velY, 2); // limita la velocidad máxima hacia abajo
+            estado = "saltando";
+        }
+
+        // Aplicar movimiento vertical
+        y += velY;
+
+        if (y > 1000) vivo = false;
+    }
 
 
     public int getPuntaje() { return puntaje; }
@@ -352,6 +404,16 @@ public class Jugador extends Entidad {
         this.direccion=i;
     }
 
-    public double getVelY() {return velY;
+    public double getVelY() {return velY;}
+    public String getEstado(){return estado;}
+    public void darSaltos() {
+        if (contadorSaltos==2) {
+        }else {
+            contadorSaltos++;
+        }
+    }
+
+    public void detenerVertical(){
+        y+=3;
     }
 }
