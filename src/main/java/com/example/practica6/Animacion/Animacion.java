@@ -33,7 +33,7 @@ public class Animacion {
         int sy = 0;
 
         if (!flipX) {
-            gc.drawImage(sheet,
+             gc.drawImage(sheet,
                     sx, sy, frameWidth, frameHeight,  // recorte
                     x, y, w, h                        // destino
             );

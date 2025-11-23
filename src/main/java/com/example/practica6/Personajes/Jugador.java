@@ -80,7 +80,14 @@ public class Jugador extends Entidad {
         try{
             Image dashSheet =new Image(getClass().getResourceAsStream("/Sprites/Samurai/light-attack.png"));
 
-            dashAnim=new Animacion(dashSheet, 44, 22, 7, 0.10);
+            dashAnim=new Animacion(dashSheet, 44, 22, 7, 0.05);
+        }catch (Exception e){sprite=null;}
+
+        //ataque
+        try{
+            Image atqSheet =new Image(getClass().getResourceAsStream("/Sprites/Samurai/heavy-attack.png"));
+
+            atacarAnim=new Animacion(atqSheet, 56, 36, 11, 0.05);
         }catch (Exception e){sprite=null;}
 
 
@@ -119,6 +126,7 @@ public class Jugador extends Entidad {
             arma.setX(x+width);
             arma.setY(y+width/2);
         }
+        estado=estados[ATACANDO];
     }
 
     public void moverIzquierda() {

@@ -1,6 +1,7 @@
 package com.example.practica6.Niveles;
 
 import com.example.practica6.ArchivoJuego;
+import com.example.practica6.Entorno.ObjetosDecoracion;
 import com.example.practica6.Entorno.Plataforma;
 import com.example.practica6.Entorno.Suelo;
 import com.example.practica6.Entorno.Techo;
@@ -29,6 +30,7 @@ public class Nv1 {
     private Jugador jugador;
     private List<Entidad> entidades;
     private List<Plataforma> plataformas;
+    private List<ObjetosDecoracion> decoracions;
     private Set<KeyCode> keys = new HashSet<>();
     private ArchivoJuego archivoJuego;
 
@@ -60,6 +62,8 @@ public class Nv1 {
         archivoJuego = new ArchivoJuego("datos/progreso.txt");
         entidades = new ArrayList<>();
         plataformas = new ArrayList<>();
+        decoracions=new ArrayList<>();
+
 
         jugador = new Jugador(50, 500, 40, 60, 100);
         entidades.add(jugador);
@@ -156,7 +160,13 @@ public class Nv1 {
         boolean tocandoPared = false;
 
         // update entities
-        for (Entidad en : entidades) en.update(delta);
+        for (Entidad en : entidades){
+            if(! (en instanceof EnemigoTerrestre)){
+                en.update(delta);
+            }else{
+                ((EnemigoTerrestre) en).update(4050, 4250, delta);
+            }
+        }
 
         // gravedad & plataformas collision for player
 
@@ -228,6 +238,7 @@ public class Nv1 {
                         enemigo.activarInvulnerabilidad();
                         if(enemigo.getVida() <= 0) {
                             jugador.setPuntaje(enemigo.getPuntaje());
+                            entidades.remove(enemigo);
                         }
                         System.out.println("Corazones restantes: "+ enemigo.getVida());
                     }
@@ -249,30 +260,62 @@ public class Nv1 {
         // remove dead or collected items if any (not implemented but placeholder)
     }
 
-    private void generarObjetos(){
+    private void generarObjetos() {
+        // ============================
+        //  PLATAFORMAS
+        // ============================
+
         plataformas.add(new Suelo(0, 800, 800, 100));
-
         plataformas.add(new Suelo(900, 700, 200, 50));
-
         plataformas.add(new Suelo(1250, 800, 400, 500));
-
         plataformas.add(new Suelo(1850, 800, 400, 500));
-
         plataformas.add(new Suelo(2250, 600, 835, 500));
-
         plataformas.add(new Suelo(3250, 200, 800, 800));
-
         plataformas.add(new Suelo(3050, 0, 50, 400));
-
-        plataformas.add(new Techo(3050, 390, 51, 30 ));
-
+        plataformas.add(new Techo(3050, 390, 51, 30));
         plataformas.add(new Suelo(4050, 800, 800, 100));
 
-        entidades.add( new EnemigoTerrestre(4150, 720, 40, 80, 1.5, 20, 10));
+        entidades.add(new EnemigoTerrestre(4150, 720, 40, 80, 1.5, 5, 10));
 
+        // ============================
+        //  DECORACIONES (Y ALINEADAS)
+        // ============================
 
+        // Suelo: y = 800
+        decoracions.add(new ObjetosDecoracion(100, 800, 40, 40, 0));  // ROCKS1
+        decoracions.add(new ObjetosDecoracion(240, 800, 50, 50, 2));  // ROCKS3
+        decoracions.add(new ObjetosDecoracion(320, 800, 65, 65, 4));  // ROCKS5
+        decoracions.add(new ObjetosDecoracion(500, 800, 90, 120, 6)); // TREE1
+        decoracions.add(new ObjetosDecoracion(650, 800, 110, 150, 7)); // TREE2
 
+        // Plataforma: y = 700
+        decoracions.add(new ObjetosDecoracion(910, 700 - 60, 60, 60, 1)); // ROCKS2
+        decoracions.add(new ObjetosDecoracion(980, 700 - 130, 100, 130, 8)); // TREE3
+
+        // Suelo: y = 800 (zona media)
+        decoracions.add(new ObjetosDecoracion(1350, 800 - 55, 55, 55, 5));  // ROCKS6
+        decoracions.add(new ObjetosDecoracion(1500, 800 - 150, 110, 150, 6)); // TREE1
+        decoracions.add(new ObjetosDecoracion(1650, 800 - 45, 45, 45, 3)); // ROCKS4
+
+        // Suelo: y = 800 (zona media 2)
+        decoracions.add(new ObjetosDecoracion(1880, 800 - 60, 60, 60, 0)); // ROCKS1
+        decoracions.add(new ObjetosDecoracion(2000, 800 - 160, 120, 160, 9)); // TREE4
+
+        // Plataforma: y = 600
+        decoracions.add(new ObjetosDecoracion(2300, 600 - 50, 50, 50, 4)); // ROCKS5
+        decoracions.add(new ObjetosDecoracion(2450, 600 - 140, 100, 140, 6)); // TREE1
+        decoracions.add(new ObjetosDecoracion(2600, 600 - 40, 40, 40, 1)); // ROCKS2
+
+        // Plataforma alta: y = 200
+        decoracions.add(new ObjetosDecoracion(3300, 200 - 55, 55, 55, 5)); // ROCKS6
+        decoracions.add(new ObjetosDecoracion(3450, 200 - 140, 100, 140, 8)); // TREE3
+
+        // Suelo final: y = 800
+        decoracions.add(new ObjetosDecoracion(4100, 800 - 180, 130, 180, 9)); // TREE4
+        decoracions.add(new ObjetosDecoracion(4300, 800 - 50, 50, 50, 0));   // ROCKS1
+        decoracions.add(new ObjetosDecoracion(4450, 800 - 45, 45, 45, 3));   // ROCKS4
     }
+
     private void dibujarFondos(GraphicsContext gc) {
 
         double camX = cameraX;
@@ -285,6 +328,7 @@ public class Nv1 {
         double[] vel =  { 0.15,  0.35,     0.6  };
 
         for (int i = 0; i < capas.length; i++) {
+
 
             Image img = capas[i];
 
@@ -339,12 +383,20 @@ public class Nv1 {
             p.draw(gc);
         }
 
+        for (ObjetosDecoracion e : decoracions) {
+            double alto = e.getHeight();
+            double ySuelo = buscarSueloDebajo(e.getX());
+            e.setY(ySuelo - alto);
+            e.draw(gc);
+        }
+
         // draw entities
         for (Entidad e : entidades){
             e.draw(gc);
             if(e instanceof Jugador){
                 ((Jugador) e).dibujarArma(gc);
             }
+
         }
         gc.restore();
 
@@ -363,6 +415,16 @@ public class Nv1 {
             gc.setFont(Font.font(36));
             gc.fillText("¡Has perdido!", width/2 - 100, height/2);
         }
+    }
+    private double buscarSueloDebajo(double x) {
+        for (Plataforma p : plataformas) {
+            if (p instanceof Suelo) {
+                if (x >= p.getX() && x <= p.getX() + p.getWidth()) {
+                    return p.getY();
+                }
+            }
+        }
+        return 1000; // fallback
     }
 
 

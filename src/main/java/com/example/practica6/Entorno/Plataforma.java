@@ -14,7 +14,14 @@ public class Plataforma {
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(x,y,width,height);
     }
-    public double getY() { return y; }
+    public double  getY() { return y; }
+    public double getX() { return x; }
 
+    public double getHeight() {
+        return height;
+    }
 
+    public double getWidth() {
+        return width;
+    }
 }

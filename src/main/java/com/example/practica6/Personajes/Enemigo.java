@@ -30,8 +30,5 @@ public abstract class Enemigo extends Entidad {
         return daño;
     }
 
-    public double getCorazones(){return vida;}
-
-    public void setCorazones(double corazones){this.vida=corazones;}
 
 }
