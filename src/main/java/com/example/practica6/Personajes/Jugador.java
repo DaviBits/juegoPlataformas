@@ -8,6 +8,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+import java.util.List;
+
 public class Jugador extends Entidad {
 
     private static final int CAMINANDO=4;
@@ -54,7 +56,7 @@ public class Jugador extends Entidad {
     public Jugador(double x, double y, double width, double height, int vida) {
         super(x,y,width*SCALE,height*SCALE, vida);
 
-        arma= new ArmaCuerpoCuerpo(x+width, y+width, 40, 40);
+        arma= new ArmaCuerpoCuerpo(x+width, y+height, 40, 40);
         this. estado=estados[0];
         //idle
         try{
@@ -159,25 +161,51 @@ public class Jugador extends Entidad {
 
     public void saltar() {
 
-        if(contadorSaltos!=0){
-            velY-=11.5;
-            enSuelo=false;
-            contadorSaltos--;
+        if (enSuelo) {
+            velY = -13;
+            enSuelo = false;
+            contadorSaltos = 1;
+            dobleSalto = true;
+            estado = estados[SALTANDO];
+            return;
         }
-        estado=estados[SALTANDO];
+
+        if (dobleSalto) {
+            velY = -12;
+            contadorSaltos = 0;
+            estado = estados[SALTANDO];
+            dobleSalto=false;
+        }
 
     }
 
 
     public void applyGravity() {
-        if(!haciendoDash ) {
-            velY += 0.5;
+
+        if (!haciendoDash) {
+
+            if (velY < 0) {
+                velY += 0.45;
+            } else {
+                velY += 0.60;
+            }
         }
+
         y += velY;
 
-        if (y > 1000) { vivo = false; }
-        estado=estados[SALTANDO];
+        if (y > 1000) vivo = false;
+
+        if (!enSuelo) {
+            estado = estados[SALTANDO];
+        }
     }
+
+    //se puede utilizar para saber si toco el suelo
+    public boolean estaCayendoSobre(Rectangle2D pl) {
+        Rectangle2D feet = new Rectangle2D(x, y + height - 5, width, 10);
+        return feet.intersects(pl);
+    }
+
 
     public void applyGravity(double vel) {
         if (!haciendoDash) {
@@ -190,6 +218,17 @@ public class Jugador extends Entidad {
         estado=estados[SALTANDO];
     }
 
+
+    private boolean colisionaConPlataformas(double nuevaX, java.util.List<Plataforma> plataformas) {
+        Rectangle2D nuevoHitbox = new Rectangle2D(nuevaX, y, width, height);
+
+        for (Plataforma p : plataformas) {
+            if (nuevoHitbox.intersects(p.getBounds())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     public void dash() {
@@ -209,18 +248,48 @@ public class Jugador extends Entidad {
 
 
 
-    public void updateDash(double delta) {
-        if (haciendoDash) {
-            dashTiempo -= delta;
+    public void updateDash(double delta, List<Plataforma> plataformas) {
 
-            x += velX;
+        if (!haciendoDash) return;
 
-            if (dashTiempo <= 0) {
-                haciendoDash = false;
-                velX = 0;
+        dashTiempo -= delta;
+
+        Rectangle2D actual = this.getBounds();
+
+        Rectangle2D futuro = new Rectangle2D(
+                x + velX,
+                y,
+                width,
+                height
+        );
+
+        boolean chocaPared = false;
+
+        for (Plataforma p : plataformas) {
+            if (p.intersecta(futuro) && p.esPared(actual)) {
+                chocaPared = true;
+                break;
             }
         }
+
+        if (chocaPared) {
+            haciendoDash = false;
+            velX = 0;
+
+            if (velX > 0) x -= 2;
+            else x += 2;
+
+            return;
+        }
+
+        x += velX;
+
+        if (dashTiempo <= 0) {
+            haciendoDash = false;
+            velX = 0;
+        }
     }
+
 
     public void downAtack(){
         if(!enSuelo){
@@ -414,6 +483,7 @@ public class Jugador extends Entidad {
 
     public double getVelY() {return velY;}
     public String getEstado(){return estado;}
+
     public void darSaltos() {
         if (contadorSaltos==2) {
         }else {

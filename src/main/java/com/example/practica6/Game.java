@@ -30,6 +30,10 @@ public class Game {
     private Set<KeyCode> keys = new HashSet<>();
     private ArchivoJuego archivoJuego;
 
+    private boolean saltoProcesado = false;
+    private boolean ataqueProcesado = false;
+    private boolean dashProcesado = false;
+
     private AnimationTimer loop;
     private double cameraX;
     private double cameraY;
@@ -107,10 +111,17 @@ public class Game {
                 guardar();
             }
             if (e.getCode() == KeyCode.SPACE) {
-                jugador.saltar();   // <-- SOLO SE DISPARA UNA VEZ
+                if (!saltoProcesado) {        // <--- SOLO UNA VEZ
+                    jugador.saltar();
+                    saltoProcesado = true;
+                }
             }
+
             if (e.getCode() == KeyCode.X) {
-                jugador.dash();
+                if (!dashProcesado) {
+                    jugador.dash();
+                    dashProcesado = true;
+                }
             }
 
             if(e.getCode() == KeyCode.C){
@@ -124,7 +135,13 @@ public class Game {
 
 
         });
-        scene.addEventHandler(KeyEvent.KEY_RELEASED, e -> keys.remove(e.getCode()));
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, e -> {
+            keys.remove(e.getCode());
+
+            if (e.getCode() == KeyCode.SPACE) saltoProcesado = false;
+            if (e.getCode() == KeyCode.X) dashProcesado = false;
+            if (e.getCode() == KeyCode.C) ataqueProcesado = false;
+        });
     }
 
     //EL SALTO DEBE ESTAR EN OTRO METODO POR EL DOBLE SALTO, NO MOVER
@@ -150,7 +167,7 @@ public class Game {
 
         // gravedad & plataformas collision for player
         jugador.applyGravity();
-        jugador.updateDash(delta);
+        jugador.updateDash(delta, plataformas);
 
         //colision con las plataformas
         boolean onPlatform = false;
