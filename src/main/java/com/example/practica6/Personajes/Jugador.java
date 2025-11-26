@@ -164,7 +164,7 @@ public class Jugador extends Entidad {
         if (enSuelo) {
             velY = -13;
             enSuelo = false;
-            contadorSaltos = 1;
+            contadorSaltos --;
             dobleSalto = true;
             estado = estados[SALTANDO];
             return;

@@ -9,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.Scene;
@@ -18,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Nv1 {
+public class Nv2 extends Pane {
     private final Canvas canvas;
     private final GraphicsContext gc;
     private final int width;
@@ -52,16 +53,17 @@ public class Nv1 {
     private Font pressStart;
 
 
-    public Nv1(int width, int height) {
+    public Nv2(int width, int height) {
         this.width = width;
         this.height = height;
         this.canvas = new Canvas(width, height);
         this.gc = canvas.getGraphicsContext2D();
         corazones=new ArrayList<>();
-         pressStart = Font.loadFont(
+        pressStart = Font.loadFont(
                 getClass().getResourceAsStream("/PressStart2P-Regular.ttf"),
                 16
         );
+        this.getChildren().add(canvas);
         init();
     }
 
@@ -296,73 +298,79 @@ public class Nv1 {
 
     private void generarObjetos() {
 
-        // ============================
-        //          PLATAFORMAS
-        // ============================
+        // ============================================
+        //     PLATAFORMAS — NIVEL 2
+        // ============================================
 
-        plataformas.add(new Suelo(0, 800, 800, 100));
-        plataformas.add(new Suelo(900, 700, 200, 50));
-        plataformas.add(new Suelo(1250, 800, 400, 500));
-        plataformas.add(new Suelo(1850, 800, 400, 500));
-        plataformas.add(new Suelo(2250, 600, 835, 500));
-        plataformas.add(new Suelo(3250, 200, 100, 800)); // penúltima plataforma
-        plataformas.add(new Suelo(3000, 0, 25, 300));
-        plataformas.add(new Suelo(3050, 350, 25, 75));
-        plataformas.add(new Suelo(3350, 800, 1500, 1000));
-        plataformas.add(new Suelo(4550, 250, 1000, 750));
+        plataformas.add(new Suelo(0, 800, 1000, 100));
+        plataformas.add(new Suelo(1100, 700, 250, 50));
+        plataformas.add(new Suelo(1450, 650, 200, 50));
+        plataformas.add(new Suelo(1800, 800, 500, 100));
+        plataformas.add(new Suelo(2500, 550, 220, 40));
+        plataformas.add(new Suelo(2800, 350, 180, 40));
+        plataformas.add(new Suelo(3100, 800, 200, 400));
+        plataformas.add(new Suelo(3350, 600, 150, 120));
+        plataformas.add(new Suelo(3600, 450, 160, 40));
+        plataformas.add(new Suelo(4000, 800, 1400, 100));
 
-        entidades.add(new EnemigoTerrestre(4150, 720, 40, 80, 1.5, 5, 10));
+        // ============================================
+        //         DECORACIONES NIVEL 2
+        // ============================================
 
-        // ============================
-        // DECORACIONES (ALINEADAS)
-        // ============================
-
-        // Suelo: y = 800
         decoracions.add(new ObjetosDecoracion(100, 800, 40, 40, 0));
-        decoracions.add(new ObjetosDecoracion(240, 800, 50, 50, 2));
-        decoracions.add(new ObjetosDecoracion(320, 800, 65, 65, 4));
-        decoracions.add(new ObjetosDecoracion(500, 800, 90, 120, 6));
-        decoracions.add(new ObjetosDecoracion(650, 800, 110, 150, 7));
+        decoracions.add(new ObjetosDecoracion(300, 800, 70, 90, 7));
+        decoracions.add(new ObjetosDecoracion(450, 800, 55, 55, 4));
 
-        // Plataforma: y = 700
-        decoracions.add(new ObjetosDecoracion(910, 700 - 60, 60, 60, 1));
-        decoracions.add(new ObjetosDecoracion(980, 700 - 130, 100, 130, 8));
+        decoracions.add(new ObjetosDecoracion(1120, 700 - 60, 60, 60, 1));
+        decoracions.add(new ObjetosDecoracion(1300, 700 - 140, 110, 140, 6));
 
-        // Suelo: y = 800 (zona media)
-        decoracions.add(new ObjetosDecoracion(1350, 800 - 55, 55, 55, 5));
-        decoracions.add(new ObjetosDecoracion(1500, 800 - 150, 110, 150, 6));
-        decoracions.add(new ObjetosDecoracion(1650, 800 - 45, 45, 45, 3));
+        decoracions.add(new ObjetosDecoracion(2600, 550 - 50, 50, 50, 5));
+        decoracions.add(new ObjetosDecoracion(2680, 550 - 150, 120, 150, 9));
 
-        // Suelo: y = 800 (zona media 2)
-        decoracions.add(new ObjetosDecoracion(1880, 800 - 60, 60, 60, 0));
-        decoracions.add(new ObjetosDecoracion(2000, 800 - 160, 120, 160, 9));
+        decoracions.add(new ObjetosDecoracion(2820, 350 - 40, 40, 40, 3));
 
-        // Plataforma: y = 600
-        decoracions.add(new ObjetosDecoracion(2300, 600 - 50, 50, 50, 4));
-        decoracions.add(new ObjetosDecoracion(2450, 600 - 140, 100, 140, 6));
-        decoracions.add(new ObjetosDecoracion(2600, 600 - 40, 40, 40, 1));
+        decoracions.add(new ObjetosDecoracion(3150, 800 - 150, 130, 150, 9));
+        decoracions.add(new ObjetosDecoracion(3450, 600 - 60, 60, 60, 2));
+        decoracions.add(new ObjetosDecoracion(3620, 450 - 100, 100, 100, 8));
 
-        // Plataforma alta: y = 200
-        decoracions.add(new ObjetosDecoracion(3300, 200 - 55, 55, 55, 5));
-        decoracions.add(new ObjetosDecoracion(3450, 200 - 140, 100, 140, 8));
+        decoracions.add(new ObjetosDecoracion(4200, 800 - 160, 120, 160, 7));
+        decoracions.add(new ObjetosDecoracion(4450, 800 - 50, 50, 50, 0));
+        decoracions.add(new ObjetosDecoracion(4600, 800 - 45, 45, 45, 3));
 
-        // Suelo final: y = 800
-        decoracions.add(new ObjetosDecoracion(4100, 800 - 180, 130, 180, 9));
-        decoracions.add(new ObjetosDecoracion(4300, 800 - 50, 50, 50, 0));
-        decoracions.add(new ObjetosDecoracion(4450, 800 - 45, 45, 45, 3));
+        // ============================================
+        //                ENEMIGOS TERRESTRES
+        // ============================================
 
-        // ============================
-        //          CORAZONES
-        // ============================
+        entidades.add(new EnemigoTerrestre(500, 720, 40, 80, 1.2, 5, 15));
+        entidades.add(new EnemigoTerrestre(1500, 620, 40, 80, 1.3, 5, 15));
+        entidades.add(new EnemigoTerrestre(2600, 500, 40, 80, 1.4, 5, 15));
+        entidades.add(new EnemigoTerrestre(3500, 550, 40, 80, 1.1, 5, 20));
+        entidades.add(new EnemigoTerrestre(4300, 720, 40, 80, 1.6, 5, 20));
 
-        corazones.add(new Corazon(20, 800, 40, 40));        // inicio
-        corazones.add(new Corazon(950, 650, 40, 40));       // plataforma de 700
-        corazones.add(new Corazon(1400, 760, 40, 40));      // zona media 1
-        corazones.add(new Corazon(1750, 760, 40, 40));      // zona media 1 extremo
-        corazones.add(new Corazon(2350, 550, 40, 40));      // plataforma 600
-        corazones.add(new Corazon(3100, 150, 40, 40));      // cerca de la plataforma alta
-        corazones.add(new Corazon(3600, 750, 40, 40));      // suelo grande final
-        corazones.add(new Corazon(4200, 760, 40, 40));      // antes del enemigo
+        // ============================================
+        //            ENEMIGOS VOLADORES
+        // ============================================
+
+        entidades.add(new EnemigoVolador(300, 600, 60, 40, 1.5, 4, 10));
+        entidades.add(new EnemigoVolador(1900, 650, 60, 40, 2.0, 4, 10));
+        entidades.add(new EnemigoVolador(2550, 450, 60, 40, 1.7, 4, 12));
+        entidades.add(new EnemigoVolador(2800, 250, 60, 40, 1.4, 4, 12));
+        entidades.add(new EnemigoVolador(3400, 350, 60, 40, 1.8, 5, 15));
+        entidades.add(new EnemigoVolador(4200, 600, 60, 40, 2.2, 6, 15));
+
+        // ============================================
+        //                  CORAZONES
+        // ============================================
+
+        corazones.add(new Corazon(100, 750, 40, 40));     // suelo inicial
+        corazones.add(new Corazon(1350, 600, 40, 40));    // subida escalonada
+        corazones.add(new Corazon(2000, 760, 40, 40));    // salto ancho
+        corazones.add(new Corazon(2550, 500, 40, 40));    // plataforma media
+        corazones.add(new Corazon(2850, 300, 40, 40));    // plataforma alta (riesgo)
+        corazones.add(new Corazon(3300, 750, 40, 40));    // torre baja
+        corazones.add(new Corazon(3600, 400, 40, 40));    // torre alta
+        corazones.add(new Corazon(4100, 760, 40, 40));    // inicio zona final
+        corazones.add(new Corazon(4700, 780, 40, 40));    // final antes meta
     }
 
 
@@ -389,7 +397,7 @@ public class Nv1 {
             double y = 0;
 
 
-             double w = img.getWidth() * scale;
+            double w = img.getWidth() * scale;
             double h = img.getHeight() * scale;
 
             // Repetir horizontalmente

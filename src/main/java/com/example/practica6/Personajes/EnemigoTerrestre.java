@@ -10,6 +10,7 @@ public class EnemigoTerrestre extends Enemigo {
     private Animacion walkAnim;
     private double velXAnterior;
     protected boolean flipX = false;
+    private double baseY;
 
     public EnemigoTerrestre(double x, double y, double width, double height, double velX, int vida) {
         super(x,y,width,height,velX, vida);
@@ -24,6 +25,7 @@ public class EnemigoTerrestre extends Enemigo {
         cargarAnimacion();
 
         this.velXAnterior = velX;
+        this.baseY=y;
 
 
     }
@@ -46,7 +48,14 @@ public class EnemigoTerrestre extends Enemigo {
     @Override
     public void update(double delta){
         x += velX;
-        if (x < 0 || x + width > 2000) velX *= -1;
+        if (x < 3100 || x + width > 4300) velX *= -1;
+    }
+
+    public void update( double xlim1, double xlim2){
+        x += velX;
+        y = baseY + Math.sin(x * 0.05) * 20;
+        if (x < xlim1) x*=-1;
+        if (x > xlim2) x*=-1;
     }
 
 
